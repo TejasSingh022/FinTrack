@@ -1,6 +1,9 @@
 package com.example.sl_project.stats;
 
 import android.content.Intent;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageView;
@@ -8,41 +11,51 @@ import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.expensetracker.R;
+import com.example.sl_project.database.DatabaseHelper;
 import com.example.sl_project.home.HomeActivity;
 import com.example.sl_project.profile.ProfileActivity;
 import com.example.sl_project.transactions.AddTransactions;
 import com.example.sl_project.transactions.TransactionListActivity;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.tabs.TabLayout;
-import java.util.ArrayList;
-import java.util.List;
+
 import com.github.mikephil.charting.charts.BarChart;
+import com.github.mikephil.charting.charts.PieChart;
+import com.github.mikephil.charting.components.Legend;
 import com.github.mikephil.charting.components.XAxis;
 import com.github.mikephil.charting.components.YAxis;
 import com.github.mikephil.charting.data.BarData;
 import com.github.mikephil.charting.data.BarDataSet;
 import com.github.mikephil.charting.data.BarEntry;
+import com.github.mikephil.charting.data.PieData;
+import com.github.mikephil.charting.data.PieDataSet;
+import com.github.mikephil.charting.data.PieEntry;
 import com.github.mikephil.charting.formatter.IndexAxisValueFormatter;
+import com.github.mikephil.charting.formatter.PercentFormatter;
+
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class StatisticsActivity extends AppCompatActivity {
 
     private TabLayout tabLayout;
     private TextView filterDaily, filterWeekly, filterMonthly, filterYearly;
     private View timeFilterIndicator;
-    private DonutChartView donutChart;
-    private TextView chartMonth, chartAmount;
+    private PieChart pieChart;
     private ImageView backButton;
     private BottomNavigationView bottomNav;
     private BarChart barChart;
-
+    private DatabaseHelper dbHelper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.statistics);
 
-        // Initialize UI components
+        dbHelper = new DatabaseHelper(this);
         initViews();
         setupListeners();
         setupData();
@@ -57,9 +70,7 @@ public class StatisticsActivity extends AppCompatActivity {
         filterMonthly = findViewById(R.id.filterMonthly);
         filterYearly = findViewById(R.id.filterYearly);
         timeFilterIndicator = findViewById(R.id.timeFilterIndicator);
-        donutChart = findViewById(R.id.donutChart);
-        chartMonth = findViewById(R.id.chartMonth);
-        chartAmount = findViewById(R.id.chartAmount);
+        pieChart = findViewById(R.id.expensePieChart);
         bottomNav = findViewById(R.id.bottomNav);
         barChart = findViewById(R.id.barChart);
     }
@@ -68,16 +79,9 @@ public class StatisticsActivity extends AppCompatActivity {
         backButton.setOnClickListener(v -> finish());
 
         tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
-            @Override
-            public void onTabSelected(TabLayout.Tab tab) {
-                updateChartData(tab.getPosition());
-            }
-
-            @Override
-            public void onTabUnselected(TabLayout.Tab tab) {}
-
-            @Override
-            public void onTabReselected(TabLayout.Tab tab) {}
+            @Override public void onTabSelected(TabLayout.Tab tab) { updateChartData(tab.getPosition()); }
+            @Override public void onTabUnselected(TabLayout.Tab tab) {}
+            @Override public void onTabReselected(TabLayout.Tab tab) {}
         });
 
         View.OnClickListener timeFilterClickListener = v -> {
@@ -86,25 +90,12 @@ public class StatisticsActivity extends AppCompatActivity {
             filterMonthly.setTextColor(getResources().getColor(R.color.grey));
             filterYearly.setTextColor(getResources().getColor(R.color.grey));
 
+            TextView selected = (TextView) v;
+            selected.setTextColor(getResources().getColor(R.color.nav_icon_color));
             int indicatorWidth = timeFilterIndicator.getWidth();
+            timeFilterIndicator.setTranslationX(selected.getLeft() + selected.getWidth()/2 - indicatorWidth/2);
 
-            if (v.getId() == R.id.filterDaily) {
-                filterDaily.setTextColor(getResources().getColor(R.color.purple));
-                timeFilterIndicator.setTranslationX(filterDaily.getLeft() + filterDaily.getWidth()/2 - indicatorWidth/2);
-                updateTimeRange("Daily");
-            } else if (v.getId() == R.id.filterWeekly) {
-                filterWeekly.setTextColor(getResources().getColor(R.color.purple));
-                timeFilterIndicator.setTranslationX(filterWeekly.getLeft() + filterWeekly.getWidth()/2 - indicatorWidth/2);
-                updateTimeRange("Weekly");
-            } else if (v.getId() == R.id.filterMonthly) {
-                filterMonthly.setTextColor(getResources().getColor(R.color.purple));
-                timeFilterIndicator.setTranslationX(filterMonthly.getLeft() + filterMonthly.getWidth()/2 - indicatorWidth/2);
-                updateTimeRange("Monthly");
-            } else if (v.getId() == R.id.filterYearly) {
-                filterYearly.setTextColor(getResources().getColor(R.color.purple));
-                timeFilterIndicator.setTranslationX(filterYearly.getLeft() + filterYearly.getWidth()/2 - indicatorWidth/2);
-                updateTimeRange("Yearly");
-            }
+            updateTimeRange(selected.getText().toString());
         };
 
         filterDaily.setOnClickListener(timeFilterClickListener);
@@ -115,149 +106,139 @@ public class StatisticsActivity extends AppCompatActivity {
         timeFilterIndicator.post(() -> {
             int indicatorWidth = timeFilterIndicator.getWidth();
             timeFilterIndicator.setTranslationX(filterMonthly.getLeft() + filterMonthly.getWidth()/2 - indicatorWidth/2);
-
-            // Call updateTimeRange to load initial bar chart data
             updateTimeRange("Monthly");
         });
     }
 
     private void setupData() {
-        // Set initial data for the chart
-        List<Integer> amounts = new ArrayList<>();
-        List<Integer> colors = new ArrayList<>();
-
-        amounts.add(3000);
-        colors.add(getResources().getColor(R.color.dark_purple));
-
-        amounts.add(500);
-        colors.add(getResources().getColor(R.color.light_purple));
-
-        amounts.add(2000);
-        colors.add(getResources().getColor(R.color.medium_purple));
-
-        donutChart.setData(amounts, colors);
-
-        chartMonth.setText("July");
-        chartAmount.setText("$ 5500");
-
-        // Initialize with "Monthly" and the default tab (which is 0 for Expense)
-        int currentTabPosition = tabLayout.getSelectedTabPosition();
-        loadBarChartData("Monthly", currentTabPosition);
+        updateChartData(tabLayout.getSelectedTabPosition());
     }
 
     private void updateChartData(int tabPosition) {
-        List<Integer> amounts = new ArrayList<>();
+        String transactionType = (tabPosition == 0) ? "Expense" : "Income";
+        Map<String, Double> categoryData = fetchCategoryData(transactionType);
+        updatePieChartWithData(categoryData);
+        loadBarChartData(getCurrentTimeRange(), tabPosition);
+    }
+
+    private String getCurrentTimeRange() {
+        int highlightColor = getResources().getColor(R.color.nav_icon_color);
+        if (filterDaily.getCurrentTextColor() == highlightColor) return "Daily";
+        else if (filterWeekly.getCurrentTextColor() == highlightColor) return "Weekly";
+        else if (filterMonthly.getCurrentTextColor() == highlightColor) return "Monthly";
+        else if (filterYearly.getCurrentTextColor() == highlightColor) return "Yearly";
+        else return "Monthly";
+    }
+
+    private Map<String, Double> fetchCategoryData(String transactionType) {
+        Map<String, Double> categoryAmounts = new HashMap<>();
+        SQLiteDatabase db = dbHelper.getReadableDatabase();
+
+        Cursor cursor = db.rawQuery("SELECT category, SUM(amount) FROM transactions WHERE type = ? GROUP BY category", new String[]{transactionType});
+        if (cursor.moveToFirst()) {
+            do {
+                categoryAmounts.put(cursor.getString(0), cursor.getDouble(1));
+            } while (cursor.moveToNext());
+        }
+        cursor.close();
+        return categoryAmounts;
+    }
+
+    private void updatePieChartWithData(Map<String, Double> categoryData) {
+        ArrayList<PieEntry> entries = new ArrayList<>();
         List<Integer> colors = new ArrayList<>();
+        int[] colorResources = { R.color.red, R.color.blue, R.color.green, R.color.black };
+        int colorIndex = 0;
 
-        String currentTimeRange = "";
-        if (filterDaily.getCurrentTextColor() == getResources().getColor(R.color.purple)) {
-            currentTimeRange = "Daily";
-        } else if (filterWeekly.getCurrentTextColor() == getResources().getColor(R.color.purple)) {
-            currentTimeRange = "Weekly";
-        } else if (filterMonthly.getCurrentTextColor() == getResources().getColor(R.color.purple)) {
-            currentTimeRange = "Monthly";
-        } else if (filterYearly.getCurrentTextColor() == getResources().getColor(R.color.purple)) {
-            currentTimeRange = "Yearly";
-        } else {
-            // Default to Monthly if somehow none are selected
-            currentTimeRange = "Monthly";
+        for (Map.Entry<String, Double> entry : categoryData.entrySet()) {
+            entries.add(new PieEntry(entry.getValue().floatValue(), entry.getKey()));
+            colors.add(getResources().getColor(colorResources[colorIndex % colorResources.length]));
+            colorIndex++;
         }
 
-        if (tabPosition == 0) { // Expense
-            amounts.add(3000);
-            colors.add(getResources().getColor(R.color.dark_purple));
-
-            amounts.add(500);
-            colors.add(getResources().getColor(R.color.light_purple));
-
-            amounts.add(2000);
-            colors.add(getResources().getColor(R.color.medium_purple));
-
-            chartAmount.setText("$ 5500");
-        } else { // Income
-            amounts.add(7000);
-            colors.add(getResources().getColor(R.color.dark_purple));
-
-            amounts.add(1200);
-            colors.add(getResources().getColor(R.color.light_purple));
-
-            amounts.add(800);
-            colors.add(getResources().getColor(R.color.medium_purple));
-
-            chartAmount.setText("$ 9000");
+        if (entries.isEmpty()) {
+            entries.add(new PieEntry(1f, "No Data"));
+            colors.add(getResources().getColor(R.color.grey));
         }
 
-        donutChart.setData(amounts, colors);
+        PieDataSet dataSet = new PieDataSet(entries, "");
+        dataSet.setColors(colors);
+        dataSet.setDrawValues(false);
+        dataSet.setSliceSpace(3f);
 
-        loadBarChartData(currentTimeRange, tabPosition);
+        PieData data = new PieData(dataSet);
+        data.setValueFormatter(new PercentFormatter(pieChart));
+        data.setValueTextSize(11f);
+        data.setValueTextColor(Color.WHITE);
+
+        pieChart.setData(data);
+        pieChart.getDescription().setEnabled(false);
+        pieChart.setUsePercentValues(false);
+        pieChart.animateY(1000);
+        pieChart.setDrawEntryLabels(false);
+        pieChart.getLegend().setEnabled(true);
+        pieChart.invalidate();
     }
 
     private void loadBarChartData(String timeRange, int tabPosition) {
         List<BarEntry> entries = new ArrayList<>();
         List<String> labels = new ArrayList<>();
 
-        // Determine if showing expense or income data
         boolean isExpense = (tabPosition == 0);
+        String transactionType = isExpense ? "Expense" : "Income";
+        SQLiteDatabase db = dbHelper.getReadableDatabase();
+        long currentTime = System.currentTimeMillis();
+        long dayMillis = 24 * 60 * 60 * 1000L;
+        long weekMillis = 7 * dayMillis;
+        long monthMillis = 30 * dayMillis;
+        long yearMillis = 365 * dayMillis;
 
-        // Dummy values depending on time range and tab
-        if (timeRange.equals("Daily")) {
-            if (isExpense) {
-                entries.add(new BarEntry(0, 120));
-                entries.add(new BarEntry(1, 80));
-                entries.add(new BarEntry(2, 150));
-                entries.add(new BarEntry(3, 100));
-            } else {
-                entries.add(new BarEntry(0, 180));
-                entries.add(new BarEntry(1, 220));
-                entries.add(new BarEntry(2, 190));
-                entries.add(new BarEntry(3, 240));
+        for (int i = 0; i < 4; i++) {
+            long start = 0, end = 0;
+            String label = "";
+
+            switch (timeRange) {
+                case "Daily":
+                    end = currentTime - (i * dayMillis);
+                    start = end - dayMillis;
+                    label = "Day " + (4 - i);
+                    break;
+                case "Weekly":
+                    end = currentTime - (i * weekMillis);
+                    start = end - weekMillis;
+                    label = "Wk " + (4 - i);
+                    break;
+                case "Monthly":
+                    end = currentTime - (i * monthMillis);
+                    start = end - monthMillis;
+                    label = new java.text.SimpleDateFormat("MMM").format(end);
+                    break;
+                case "Yearly":
+                    Calendar cal = Calendar.getInstance();
+                    cal.add(Calendar.YEAR, -i);
+                    int year = cal.get(Calendar.YEAR);
+                    label = String.valueOf(year);
+                    cal.set(Calendar.DAY_OF_YEAR, 1);
+                    start = cal.getTimeInMillis();
+                    cal.add(Calendar.YEAR, 1);
+                    end = cal.getTimeInMillis();
+                    break;
             }
-            labels.add("Mon"); labels.add("Tue"); labels.add("Wed"); labels.add("Thu");
-        } else if (timeRange.equals("Weekly")) {
-            if (isExpense) {
-                entries.add(new BarEntry(0, 500));
-                entries.add(new BarEntry(1, 650));
-                entries.add(new BarEntry(2, 400));
-                entries.add(new BarEntry(3, 300));
-            } else {
-                entries.add(new BarEntry(0, 800));
-                entries.add(new BarEntry(1, 750));
-                entries.add(new BarEntry(2, 900));
-                entries.add(new BarEntry(3, 600));
+
+            Cursor cursor = db.rawQuery("SELECT SUM(amount) FROM transactions WHERE type = ? AND timestamp BETWEEN ? AND ?",
+                    new String[]{transactionType, String.valueOf(start), String.valueOf(end)});
+            float amount = 0;
+            if (cursor.moveToFirst() && !cursor.isNull(0)) {
+                amount = cursor.getFloat(0);
             }
-            labels.add("Wk 1"); labels.add("Wk 2"); labels.add("Wk 3"); labels.add("Wk 4");
-        } else if (timeRange.equals("Monthly")) {
-            if (isExpense) {
-                entries.add(new BarEntry(0, 1500));
-                entries.add(new BarEntry(1, 1200));
-                entries.add(new BarEntry(2, 1800));
-                entries.add(new BarEntry(3, 2000));
-            } else {
-                entries.add(new BarEntry(0, 2200));
-                entries.add(new BarEntry(1, 2400));
-                entries.add(new BarEntry(2, 2100));
-                entries.add(new BarEntry(3, 2300));
-            }
-            labels.add("Apr"); labels.add("May"); labels.add("Jun"); labels.add("Jul");
-        } else if (timeRange.equals("Yearly")) {
-            if (isExpense) {
-                entries.add(new BarEntry(0, 18000));
-                entries.add(new BarEntry(1, 21000));
-                entries.add(new BarEntry(2, 15000));
-                entries.add(new BarEntry(3, 25000));
-            } else {
-                entries.add(new BarEntry(0, 24000));
-                entries.add(new BarEntry(1, 27000));
-                entries.add(new BarEntry(2, 30000));
-                entries.add(new BarEntry(3, 28000));
-            }
-            labels.add("2021"); labels.add("2022"); labels.add("2023"); labels.add("2024");
+            cursor.close();
+
+            entries.add(new BarEntry(3 - i, amount));
+            labels.add(label);
         }
 
         BarDataSet dataSet = new BarDataSet(entries, isExpense ? "Expenses" : "Income");
-
-        // Use different colors for expense and income
-        dataSet.setColor(getResources().getColor(isExpense ? R.color.purple : R.color.dark_purple));
+        dataSet.setColor(getResources().getColor(R.color.nav_icon_color));
         dataSet.setValueTextSize(12f);
 
         BarData barData = new BarData(dataSet);
@@ -273,27 +254,20 @@ public class StatisticsActivity extends AppCompatActivity {
         xAxis.setGranularity(1f);
         xAxis.setLabelCount(labels.size());
 
-        YAxis leftAxis = barChart.getAxisLeft();
-        leftAxis.setDrawGridLines(false);
-
-        YAxis rightAxis = barChart.getAxisRight();
-        rightAxis.setEnabled(false);
-
+        barChart.getAxisLeft().setDrawGridLines(false);
+        barChart.getAxisRight().setEnabled(false);
+        barChart.setScaleEnabled(false);
+        barChart.setPinchZoom(false);
+        barChart.setDoubleTapToZoomEnabled(false);
+        barChart.setDragEnabled(false);
+        barChart.setTouchEnabled(false);
         barChart.getDescription().setEnabled(false);
         barChart.animateY(800);
         barChart.invalidate();
     }
 
     private void updateTimeRange(String timeRange) {
-        chartMonth.setText(timeRange.equals("Monthly") ? "July" :
-                timeRange.equals("Yearly") ? "2024" :
-                        timeRange.equals("Weekly") ? "Week 30" : "Today");
-
-        // Get current tab position
-        int currentTabPosition = tabLayout.getSelectedTabPosition();
-
-        // Load bar chart data with current time range and tab position
-        loadBarChartData(timeRange, currentTabPosition);
+        updateChartData(tabLayout.getSelectedTabPosition());
     }
 
     private void setupBottomNavigation() {
@@ -304,7 +278,6 @@ public class StatisticsActivity extends AppCompatActivity {
             Intent addTransaction = new Intent(this, AddTransactions.class);
             Intent stats = new Intent(this, StatisticsActivity.class);
             Intent profile = new Intent(this, ProfileActivity.class);
-            // Declare intent here
 
             if (itemId == R.id.nav_home) {
                 startActivity(home);
@@ -322,11 +295,8 @@ public class StatisticsActivity extends AppCompatActivity {
                 startActivity(profile);
                 return true;
             } else {
-                return false; // Unknown item
+                return false;
             }
-
-            //startActivity(intent); // Start the activity
-            //return true;
         });
     }
 }

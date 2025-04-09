@@ -12,7 +12,7 @@
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="56dp"
-        android:background="@color/purple"
+        android:background="#2196F3"
         app:layout_constraintTop_toTopOf="parent">
 
         <androidx.constraintlayout.widget.ConstraintLayout
@@ -70,12 +70,13 @@
             android:paddingBottom="24dp">
 
             <!-- Profile Picture -->
-            <de.hdodenhof.circleimageview.CircleImageView
+            <ImageView
                 android:id="@+id/profileImage"
                 android:layout_width="80dp"
                 android:layout_height="80dp"
                 android:src="@drawable/ic_profile_picture"
-                android:tint="@color/purple" />
+                android:scaleType="centerCrop"
+                android:layout_margin="16dp" />
 
             <!-- Username -->
             <TextView

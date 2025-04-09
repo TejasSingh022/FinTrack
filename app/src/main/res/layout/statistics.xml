@@ -6,35 +6,45 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/white"
-    tools:context=".StatisticsActivity">
+    tools:context="com.example.sl_project.stats.StatisticsActivity">
 
-    <!-- Back Button -->
-    <ImageView
-        android:id="@+id/backButton"
-        android:layout_width="24dp"
-        android:layout_height="24dp"
-        android:src="@drawable/ic_back"
-        android:contentDescription="Back"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="16dp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:tint="@color/black" />
+    <!-- Toolbar -->
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:background="#2196F3"
+        app:layout_constraintTop_toTopOf="parent">
 
-    <!-- Title -->
-    <TextView
-        android:id="@+id/title"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:text="Statistics"
-        android:textSize="18sp"
-        android:textStyle="bold"
-        android:textColor="@color/black"
-        android:gravity="center"
-        app:layout_constraintTop_toTopOf="@id/backButton"
-        app:layout_constraintBottom_toBottomOf="@id/backButton"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <ImageView
+                android:id="@+id/backButton"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@drawable/ic_back"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:tint="@color/white" />
+
+            <TextView
+                android:id="@+id/toolbarTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Profile"
+                android:textColor="@color/white"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.appcompat.widget.Toolbar>
 
     <!-- Expense/Income Tabs -->
     <com.google.android.material.tabs.TabLayout
@@ -44,10 +54,10 @@
         android:background="@color/white"
         android:layout_marginTop="16dp"
         android:layout_marginHorizontal="24dp"
-        app:layout_constraintTop_toBottomOf="@id/title"
-        app:tabIndicatorColor="@color/purple"
+        app:layout_constraintTop_toBottomOf="@id/toolbar"
+        app:tabIndicatorColor="@color/nav_icon_color"
         app:tabTextColor="@color/grey"
-        app:tabSelectedTextColor="@color/purple"
+        app:tabSelectedTextColor="@color/nav_icon_color"
         app:tabIndicatorHeight="2dp">
         <com.google.android.material.tabs.TabItem
             android:layout_width="wrap_content"
@@ -99,7 +109,7 @@
                 android:text="Monthly"
                 android:paddingHorizontal="24dp"
                 android:paddingVertical="8dp"
-                android:textColor="@color/purple"
+                android:textColor="@color/nav_icon_color"
                 android:textStyle="bold" />
 
             <TextView
@@ -122,7 +132,7 @@
         app:layout_constraintStart_toStartOf="parent"
         android:layout_marginStart="30dp" />
 
-    <!-- Donut Chart -->
+    <!-- Pie Chart -->
     <FrameLayout
         android:id="@+id/chartContainer"
         android:layout_width="200dp"
@@ -132,141 +142,19 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 
-        <com.example.sl_project.stats.DonutChartView
-            android:id="@+id/donutChart"
+        <com.github.mikephil.charting.charts.PieChart
+            android:id="@+id/expensePieChart"
             android:layout_width="match_parent"
-            android:layout_height="match_parent" />
+            android:layout_height="200dp" />
 
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:gravity="center"
-            android:layout_gravity="center">
-
-            <TextView
-                android:id="@+id/chartMonth"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="July"
-                android:textSize="16sp" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Total expense"
-                android:textSize="12sp"
-                android:textColor="@color/grey" />
-
-            <TextView
-                android:id="@+id/chartAmount"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="$ 5500"
-                android:textSize="18sp"
-                android:textStyle="bold"
-                android:textColor="@color/black" />
-        </LinearLayout>
     </FrameLayout>
-
-    <!-- Legend -->
-    <LinearLayout
-        android:id="@+id/legendContainer"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_marginHorizontal="24dp"
-        android:layout_marginTop="16dp"
-        app:layout_constraintTop_toBottomOf="@id/chartContainer">
-
-        <LinearLayout
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:orientation="horizontal"
-            android:gravity="center_vertical">
-
-            <View
-                android:layout_width="8dp"
-                android:layout_height="8dp"
-                android:background="@drawable/circle_shape_dark_purple" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Shopping"
-                android:textSize="12sp"
-                android:layout_marginStart="4dp" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="$3000"
-                android:textSize="12sp"
-                android:layout_marginStart="4dp" />
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:orientation="horizontal"
-            android:gravity="center_vertical">
-
-            <View
-                android:layout_width="8dp"
-                android:layout_height="8dp"
-                android:background="@drawable/circle_shape_light_purple" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Internet"
-                android:textSize="12sp"
-                android:layout_marginStart="4dp" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="$500"
-                android:textSize="12sp"
-                android:layout_marginStart="4dp" />
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:orientation="horizontal"
-            android:gravity="center_vertical">
-
-            <View
-                android:layout_width="8dp"
-                android:layout_height="8dp"
-                android:background="@drawable/circle_shape_medium_purple" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Education"
-                android:textSize="12sp"
-                android:layout_marginStart="4dp" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="$2000"
-                android:textSize="12sp"
-                android:layout_marginStart="4dp" />
-        </LinearLayout>
-    </LinearLayout>
 
     <com.github.mikephil.charting.charts.BarChart
         android:id="@+id/barChart"
         android:layout_width="0dp"
         android:layout_height="250dp"
         android:layout_marginTop="24dp"
-        app:layout_constraintTop_toBottomOf="@id/legendContainer"
+        app:layout_constraintTop_toBottomOf="@id/chartContainer"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintBottom_toTopOf="@id/bottomNav"/>
