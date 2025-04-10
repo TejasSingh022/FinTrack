@@ -49,30 +49,16 @@
     </androidx.appcompat.widget.Toolbar>
 
     <!-- Profile Picture -->
-    <de.hdodenhof.circleimageview.CircleImageView
+    <ImageView
         android:id="@+id/profileImage"
         android:layout_width="100dp"
         android:layout_height="100dp"
-        android:src="@drawable/profile_picture"
+        android:src="@drawable/ic_profile_picture"
         app:civ_border_width="2dp"
-        app:civ_border_color="@color/purple"
         app:layout_constraintTop_toBottomOf="@id/toolbar"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         android:layout_marginTop="20dp" />
-
-    <!-- Edit Picture -->
-    <TextView
-        android:id="@+id/editPicture"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Edit picture"
-        android:textColor="@color/purple"
-        android:textSize="14sp"
-        android:layout_marginTop="8dp"
-        app:layout_constraintTop_toBottomOf="@id/profileImage"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
 
     <!-- Name Input -->
     <TextView
@@ -81,7 +67,7 @@
         android:text="Name"
         android:textColor="@color/black"
         android:textStyle="bold"
-        app:layout_constraintTop_toBottomOf="@id/editPicture"
+        app:layout_constraintTop_toBottomOf="@id/profileImage"
         android:layout_marginTop="16dp"
         app:layout_constraintStart_toStartOf="parent"/>
 
@@ -94,7 +80,7 @@
         android:text="Naveena J"
         android:textColor="@color/black"
         android:textSize="16sp"
-        app:layout_constraintTop_toBottomOf="@id/editPicture"
+        app:layout_constraintTop_toBottomOf="@id/profileImage"
         android:layout_marginTop="36dp"/>
 
     <!-- Email Input -->
