@@ -19,6 +19,7 @@ import com.example.sl_project.login.LoginActivity;
 import com.example.sl_project.stats.StatisticsActivity;
 import com.example.sl_project.transactions.AddTransactions;
 import com.example.sl_project.transactions.TransactionListActivity;
+import com.example.sl_project.utils.NavigationUtils;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
@@ -39,7 +40,7 @@ public class ProfileActivity extends AppCompatActivity {
         setupToolbar();
         loadUserData();
         setupClickListeners();
-        setupBottomNavigation();
+        NavigationUtils.setupBottomNavigation(this, findViewById(R.id.bottomNav), R.id.nav_profile);
     }
 
     private void initViews() {
@@ -86,6 +87,12 @@ public class ProfileActivity extends AppCompatActivity {
                 .show();
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        loadUserData();
+    }
+
     private void shareInvite() {
         Intent shareIntent = new Intent(Intent.ACTION_SEND);
         shareIntent.setType("text/plain");
@@ -120,33 +127,5 @@ public class ProfileActivity extends AppCompatActivity {
                 })
                 .setNegativeButton("No", null)
                 .show();
-    }
-
-    private void setupBottomNavigation() {
-        bottomNav.setOnItemSelectedListener(item -> {
-            int itemId = item.getItemId();
-            Intent intent;
-            switch (itemId) {
-                case R.id.nav_home:
-                    intent = new Intent(this, HomeActivity.class);
-                    break;
-                case R.id.nav_add:
-                    intent = new Intent(this, AddTransactions.class);
-                    break;
-                case R.id.nav_transactions:
-                    intent = new Intent(this, TransactionListActivity.class);
-                    break;
-                case R.id.nav_statistics:
-                    intent = new Intent(this, StatisticsActivity.class);
-                    break;
-                case R.id.nav_profile:
-                    intent = new Intent(this, ProfileActivity.class);
-                    break;
-                default:
-                    return false;
-            }
-            startActivity(intent);
-            return true;
-        });
     }
 }

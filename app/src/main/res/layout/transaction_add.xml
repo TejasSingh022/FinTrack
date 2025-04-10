@@ -12,8 +12,6 @@ android:orientation="vertical">
     android:layout_weight="1"
     android:background="@android:color/white">
 
-    <!-- Your existing layout goes here (all inside a LinearLayout) -->
-    <!-- Replace your root LinearLayout with this inner one inside ScrollView -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

@@ -7,9 +7,9 @@
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
-        android:icon="@drawable/FinTrackLogo"
+        android:icon="@drawable/fintrack_logo"
         android:label="@string/app_name"
-        android:roundIcon="@drawable/FinTrackLogo"
+        android:roundIcon="@drawable/fintrack_logo"
         android:supportsRtl="true"
         android:theme="@style/Theme.SL_Project"
         tools:targetApi="31">

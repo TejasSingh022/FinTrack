@@ -8,6 +8,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.expensetracker.R;
@@ -39,7 +40,7 @@ public class HomeTransactionAdapter extends RecyclerView.Adapter<HomeTransaction
         holder.categoryTextView.setText(homeTransaction.getCategory());
 
         if ("Income".equalsIgnoreCase(homeTransaction.getType())) {
-            holder.amountTextView.setTextColor(Color.GREEN);
+            holder.amountTextView.setTextColor(ContextCompat.getColor(context, R.color.homeGreen));
         } else {
             holder.amountTextView.setTextColor(Color.RED);
         }
