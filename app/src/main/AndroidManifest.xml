@@ -24,12 +24,16 @@
         </activity>
         <activity android:name="com.example.sl_project.login.LoginActivity" />
         <activity android:name="com.example.sl_project.login.SignupActivity" />
-        <activity android:name="com.example.sl_project.transactions.TransactionListActivity" />
+        <activity android:name="com.example.sl_project.transactions.TransactionListActivity"
+            android:launchMode="singleTop"/>
         <activity android:name="com.example.sl_project.home.HomeActivity"
             android:launchMode="singleTop"/>
-        <activity android:name="com.example.sl_project.transactions.AddTransactions" />
-        <activity android:name="com.example.sl_project.stats.StatisticsActivity" />
-        <activity android:name="com.example.sl_project.profile.ProfileActivity" />
+        <activity android:name="com.example.sl_project.transactions.AddTransactions"
+            android:launchMode="singleTop"/>
+        <activity android:name="com.example.sl_project.stats.StatisticsActivity"
+            android:launchMode="singleTop"/>
+        <activity android:name="com.example.sl_project.profile.ProfileActivity"
+            android:launchMode="singleTop"/>
         <activity android:name="com.example.sl_project.profile.PersonalInfoActivity" />
 
     </application>
