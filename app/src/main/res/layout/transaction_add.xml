@@ -204,6 +204,5 @@ android:orientation="vertical">
     app:menu="@menu/bottom_nav_menu"
     app:itemTextColor="#2196F3"
     app:itemIconSize="24dp"
-    app:itemBackground="@drawable/nav_item_background"
     app:labelVisibilityMode="labeled" />
 </LinearLayout>
