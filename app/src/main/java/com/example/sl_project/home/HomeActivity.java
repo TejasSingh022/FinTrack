@@ -9,10 +9,13 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -24,6 +27,7 @@ import com.example.sl_project.stats.StatisticsActivity;
 import com.example.sl_project.transactions.AddTransactions;
 import com.example.sl_project.transactions.Transaction;
 import com.example.sl_project.transactions.TransactionListActivity;
+import com.example.sl_project.utils.NavigationUtils;
 import com.github.mikephil.charting.charts.PieChart;
 import com.github.mikephil.charting.components.Legend;
 import com.github.mikephil.charting.data.PieData;
@@ -47,6 +51,8 @@ public class HomeActivity extends AppCompatActivity {
     private ProgressBar budgetProgressBar;
     private TextView budgetPercentage;
     private BottomNavigationView bottomNav;
+    public static final String EXTRA_SELECTED_NAV_ID = "SELECTED_NAV_ID";
+
 
 
     @Override
@@ -86,7 +92,15 @@ public class HomeActivity extends AppCompatActivity {
         transactionsShowMore.setOnClickListener(view -> showTransactionsList());
 
         // Set up Bottom Navigation
-        setupBottomNavigation();
+
+        bottomNav = findViewById(R.id.bottomNav);
+        NavigationUtils.setupBottomNavigation(this, findViewById(R.id.bottomNav), R.id.nav_home);
+    }
+    @Override
+    protected void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        Log.d("HomeActivity", "onSaveInstanceState: selectedItemId = " + bottomNav.getSelectedItemId());
+        outState.putInt("selectedItemId", bottomNav.getSelectedItemId());
     }
     private void updateIncomeAndExpense() {
         double totalIncome = dbHelper.getTotalIncome();
@@ -237,38 +251,7 @@ public class HomeActivity extends AppCompatActivity {
         return entries;
     }
 
-    private void setupBottomNavigation() {
-        bottomNav.setOnItemSelectedListener(item -> {
-            int itemId = item.getItemId();
-            Intent allTransactions = new Intent(this, TransactionListActivity.class);
-            Intent addTransaction = new Intent(this, AddTransactions.class);
-            Intent stats = new Intent(this, StatisticsActivity.class);
-            Intent profile = new Intent(this, ProfileActivity.class);
-            // Declare intent here
 
-            if (itemId == R.id.nav_home) {
-                // Already on Home, do nothing or refresh
-                return true;
-            }else if (itemId == R.id.nav_add) {
-                startActivity(addTransaction);
-                return true;
-            } else if (itemId == R.id.nav_transactions) {
-                startActivity(allTransactions);
-                return true;
-            } else if (itemId == R.id.nav_statistics) {
-                startActivity(stats);
-                return true;
-            } else if (itemId == R.id.nav_profile) {
-                startActivity(profile);
-                return true;
-            } else {
-                return false; // Unknown item
-            }
-
-            //startActivity(intent); // Start the activity
-            //return true;
-        });
-    }
     private void showAnalyticsDetails() {
         Intent stats = new Intent(this, StatisticsActivity.class);
         startActivity(stats);

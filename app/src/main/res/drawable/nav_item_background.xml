@@ -2,8 +2,11 @@
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
     <item android:state_checked="true">
         <shape android:shape="oval">
-            <solid android:color="@color/white"/>  <!-- White background when selected -->
-            <size android:width="60dp" android:height="60dp"/>  <!-- Adjust size if needed -->
+            <solid android:color="@color/white"/>
+            <size android:width="60dp" android:height="60dp"/>
         </shape>
+    </item>
+    <item>
+        <color android:color="@android:color/transparent"/>
     </item>
 </selector>

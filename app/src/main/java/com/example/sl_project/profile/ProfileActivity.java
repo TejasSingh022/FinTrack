@@ -19,9 +19,8 @@ import com.example.sl_project.login.LoginActivity;
 import com.example.sl_project.stats.StatisticsActivity;
 import com.example.sl_project.transactions.AddTransactions;
 import com.example.sl_project.transactions.TransactionListActivity;
-import com.google.android.material.bottomnavigation.BottomNavigationView;
-
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 public class ProfileActivity extends AppCompatActivity {
 
@@ -69,29 +68,20 @@ public class ProfileActivity extends AppCompatActivity {
     }
 
     private void setupClickListeners() {
-        personalInfoLayout.setOnClickListener(v -> {
-            Intent intent = new Intent(ProfileActivity.this, PersonalInfoActivity.class);
-            startActivity(intent);
-        });
-
+        personalInfoLayout.setOnClickListener(v -> startActivity(new Intent(ProfileActivity.this, PersonalInfoActivity.class)));
         changePasswordLayout.setOnClickListener(v -> showChangePasswordDialog());
-
         inviteLayout.setOnClickListener(v -> shareInvite());
-
         contactUsLayout.setOnClickListener(v -> contactUs());
-
         logoutLayout.setOnClickListener(v -> logout());
     }
 
     private void showChangePasswordDialog() {
         View dialogView = getLayoutInflater().inflate(R.layout.profile_change_password, null);
-
         new MaterialAlertDialogBuilder(this)
                 .setTitle("Change Password")
                 .setView(dialogView)
-                .setPositiveButton("Change", (dialog, which) -> {
-                    Toast.makeText(ProfileActivity.this, "Password changed successfully", Toast.LENGTH_SHORT).show();
-                })
+                .setPositiveButton("Change", (dialog, which) ->
+                    Toast.makeText(ProfileActivity.this, "Password changed successfully", Toast.LENGTH_SHORT).show())
                 .setNegativeButton("Cancel", null)
                 .show();
     }
@@ -109,7 +99,6 @@ public class ProfileActivity extends AppCompatActivity {
         Intent intent = new Intent(Intent.ACTION_SENDTO);
         intent.setData(Uri.parse("mailto:"));
         intent.putExtra(Intent.EXTRA_EMAIL, new String[]{"support@example.com"});
-
         try {
             startActivity(Intent.createChooser(intent, "Contact Us via Email"));
         } catch (android.content.ActivityNotFoundException ex) {
@@ -136,33 +125,28 @@ public class ProfileActivity extends AppCompatActivity {
     private void setupBottomNavigation() {
         bottomNav.setOnItemSelectedListener(item -> {
             int itemId = item.getItemId();
-            Intent home = new Intent(this, HomeActivity.class);
-            Intent allTransactions = new Intent(this, TransactionListActivity.class);
-            Intent addTransaction = new Intent(this, AddTransactions.class);
-            Intent stats = new Intent(this, StatisticsActivity.class);
-            Intent profile = new Intent(this, ProfileActivity.class);
-
-            if (itemId == R.id.nav_home) {
-                startActivity(home);
-                return true;
-            } else if (itemId == R.id.nav_add) {
-                startActivity(addTransaction);
-                return true;
-            } else if (itemId == R.id.nav_transactions) {
-                startActivity(allTransactions);
-                return true;
-            } else if (itemId == R.id.nav_statistics) {
-                startActivity(stats);
-                return true;
-            } else if (itemId == R.id.nav_profile) {
-                startActivity(profile);
-                return true;
-            } else {
-                return false;
+            Intent intent;
+            switch (itemId) {
+                case R.id.nav_home:
+                    intent = new Intent(this, HomeActivity.class);
+                    break;
+                case R.id.nav_add:
+                    intent = new Intent(this, AddTransactions.class);
+                    break;
+                case R.id.nav_transactions:
+                    intent = new Intent(this, TransactionListActivity.class);
+                    break;
+                case R.id.nav_statistics:
+                    intent = new Intent(this, StatisticsActivity.class);
+                    break;
+                case R.id.nav_profile:
+                    intent = new Intent(this, ProfileActivity.class);
+                    break;
+                default:
+                    return false;
             }
+            startActivity(intent);
+            return true;
         });
     }
 }
-
-
-

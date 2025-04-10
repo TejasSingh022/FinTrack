@@ -16,6 +16,7 @@ import com.example.sl_project.home.HomeActivity;
 import com.example.sl_project.profile.ProfileActivity;
 import com.example.sl_project.transactions.AddTransactions;
 import com.example.sl_project.transactions.TransactionListActivity;
+import com.example.sl_project.utils.NavigationUtils;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.tabs.TabLayout;
 
@@ -59,8 +60,7 @@ public class StatisticsActivity extends AppCompatActivity {
         initViews();
         setupListeners();
         setupData();
-        setupBottomNavigation();
-    }
+        NavigationUtils.setupBottomNavigation(this, findViewById(R.id.bottomNav), R.id.nav_statistics);    }
 
     private void initViews() {
         backButton = findViewById(R.id.backButton);

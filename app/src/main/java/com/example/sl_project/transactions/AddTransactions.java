@@ -21,6 +21,7 @@ import com.example.sl_project.database.DatabaseHelper;
 import com.example.sl_project.home.HomeActivity;
 import com.example.sl_project.profile.ProfileActivity;
 import com.example.sl_project.stats.StatisticsActivity;
+import com.example.sl_project.utils.NavigationUtils;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import java.text.SimpleDateFormat;
@@ -79,7 +80,7 @@ public class AddTransactions extends AppCompatActivity {
 
         // Check if we're editing an existing transaction
         handleEditIntent();
-        setupBottomNavigation();
+        NavigationUtils.setupBottomNavigation(this, findViewById(R.id.bottomNav), R.id.nav_add);
     }
 
     private void handleEditIntent() {
@@ -134,40 +135,6 @@ public class AddTransactions extends AppCompatActivity {
 
             btnSave.setText("Update Transaction");
         }
-    }
-
-    private void setupBottomNavigation() {
-        bottomNav.setOnItemSelectedListener(item -> {
-            int itemId = item.getItemId();
-            Intent home = new Intent(this, HomeActivity.class);
-            Intent allTransactions = new Intent(this, TransactionListActivity.class);
-            Intent addTransaction = new Intent(this, AddTransactions.class);
-            Intent stats = new Intent(this, StatisticsActivity.class);
-            Intent profile = new Intent(this, ProfileActivity.class);
-            // Declare intent here
-
-            if (itemId == R.id.nav_home) {
-                startActivity(home);
-                return true;
-            }else if (itemId == R.id.nav_add) {
-                startActivity(addTransaction);
-                return true;
-            } else if (itemId == R.id.nav_transactions) {
-                startActivity(allTransactions);
-                return true;
-            } else if (itemId == R.id.nav_statistics) {
-                startActivity(stats);
-                return true;
-            } else if (itemId == R.id.nav_profile) {
-                startActivity(profile);
-                return true;
-            } else {
-                return false; // Unknown item
-            }
-
-            //startActivity(intent); // Start the activity
-            //return true;
-        });
     }
 
     private void setupSpinners() {
