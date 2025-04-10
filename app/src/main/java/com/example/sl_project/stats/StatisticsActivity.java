@@ -12,6 +12,7 @@ import com.example.sl_project.home.HomeActivity;
 import com.example.sl_project.profile.ProfileActivity;
 import com.example.sl_project.transactions.AddTransactions;
 import com.example.sl_project.transactions.TransactionListActivity;
+import com.example.sl_project.utils.NavigationUtils;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.tabs.TabLayout;
@@ -46,8 +47,7 @@ public class StatisticsActivity extends AppCompatActivity {
         initViews();
         setupListeners();
         setupData();
-        setupBottomNavigation();
-    }
+        NavigationUtils.setupBottomNavigation(this, findViewById(R.id.bottomNav), R.id.nav_statistics);    }
 
     private void initViews() {
         backButton = findViewById(R.id.backButton);
@@ -294,39 +294,5 @@ public class StatisticsActivity extends AppCompatActivity {
 
         // Load bar chart data with current time range and tab position
         loadBarChartData(timeRange, currentTabPosition);
-    }
-
-    private void setupBottomNavigation() {
-        bottomNav.setOnItemSelectedListener(item -> {
-            int itemId = item.getItemId();
-            Intent home = new Intent(this, HomeActivity.class);
-            Intent allTransactions = new Intent(this, TransactionListActivity.class);
-            Intent addTransaction = new Intent(this, AddTransactions.class);
-            Intent stats = new Intent(this, StatisticsActivity.class);
-            Intent profile = new Intent(this, ProfileActivity.class);
-            // Declare intent here
-
-            if (itemId == R.id.nav_home) {
-                startActivity(home);
-                return true;
-            }else if (itemId == R.id.nav_add) {
-                startActivity(addTransaction);
-                return true;
-            } else if (itemId == R.id.nav_transactions) {
-                startActivity(allTransactions);
-                return true;
-            } else if (itemId == R.id.nav_statistics) {
-                startActivity(stats);
-                return true;
-            } else if (itemId == R.id.nav_profile) {
-                startActivity(profile);
-                return true;
-            } else {
-                return false; // Unknown item
-            }
-
-            //startActivity(intent); // Start the activity
-            //return true;
-        });
     }
 }
